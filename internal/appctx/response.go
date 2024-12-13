@@ -17,6 +17,7 @@ type Response struct {
 	Timestamp time.Time   `json:"timestamp"`
 	Data      interface{} `json:"data,omitempty"`
 	Errors    interface{} `json:"errors,omitempty"`
+	Message   string      `json:"message,omitempty"`
 }
 
 func (r *Response) WithCode(code int) *Response {
@@ -37,6 +38,11 @@ func (r *Response) WithData(data interface{}) *Response {
 
 func (r *Response) WithErrors(errors interface{}) *Response {
 	r.Errors = errors
+	return r
+}
+
+func (r *Response) WithMessage(message string) *Response {
+	r.Message = message
 	return r
 }
 
