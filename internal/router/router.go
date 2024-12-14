@@ -7,8 +7,11 @@ import (
 	"github.com/hanifkf12/hanif_skeleton/internal/handler"
 	"github.com/hanifkf12/hanif_skeleton/internal/middleware"
 	"github.com/hanifkf12/hanif_skeleton/internal/repository/home"
+	"github.com/hanifkf12/hanif_skeleton/internal/repository/profile"
+	"github.com/hanifkf12/hanif_skeleton/internal/repository/user"
 	"github.com/hanifkf12/hanif_skeleton/internal/usecase"
 	"github.com/hanifkf12/hanif_skeleton/internal/usecase/contract"
+	v1 "github.com/hanifkf12/hanif_skeleton/internal/usecase/v1"
 	"github.com/hanifkf12/hanif_skeleton/pkg/config"
 	"github.com/hanifkf12/hanif_skeleton/pkg/logger"
 )
@@ -52,10 +55,16 @@ func (t *test) Serve(data appctx.Data) appctx.Response {
 }
 
 func (rtr *router) Route() {
+	v1Route := rtr.fiber.Group("/v1")
 	db := bootstrap.RegistryDatabase(rtr.cfg)
 	homeRepo := home.NewHomeRepository(db)
+	userRepo := user.NewUserRepository(db)
+	profileRepo := profile.NewProfileRepository(db)
 
 	healthUseCase := usecase.NewHealth(homeRepo)
+	signUp := v1.NewSignUp(userRepo, profileRepo)
+	login := v1.NewLogin(userRepo)
+
 	testSvc := &test{}
 	rtr.fiber.Get("/health", rtr.handle(
 		handler.HttpRequest,
@@ -68,6 +77,15 @@ func (rtr *router) Route() {
 		middleware.JWTMiddleware,
 	))
 
+	v1Route.Post("/signup", rtr.handle(
+		handler.HttpRequest,
+		signUp,
+	))
+
+	v1Route.Post("/login", rtr.handle(
+		handler.HttpRequest,
+		login,
+	))
 }
 
 func NewRouter(cfg *config.Config, fiber fiber.Router) Router {
