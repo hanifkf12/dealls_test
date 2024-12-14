@@ -26,6 +26,7 @@ WORKDIR /app
 # Copy the compiled binary from the builder stage
 COPY --from=builder /app/app .
 COPY database/migration /app/database/migration
+COPY secret/secret.key /app/secret/secret.key
 
 # Set environment variables (optional, adjust as needed)
 ENV APP_PORT=9000
