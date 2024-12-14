@@ -8,6 +8,8 @@ import (
 	"github.com/hanifkf12/hanif_skeleton/internal/middleware"
 	"github.com/hanifkf12/hanif_skeleton/internal/repository/home"
 	"github.com/hanifkf12/hanif_skeleton/internal/repository/profile"
+	"github.com/hanifkf12/hanif_skeleton/internal/repository/swipe"
+	"github.com/hanifkf12/hanif_skeleton/internal/repository/transaction"
 	"github.com/hanifkf12/hanif_skeleton/internal/repository/user"
 	"github.com/hanifkf12/hanif_skeleton/internal/usecase"
 	"github.com/hanifkf12/hanif_skeleton/internal/usecase/contract"
@@ -60,10 +62,15 @@ func (rtr *router) Route() {
 	homeRepo := home.NewHomeRepository(db)
 	userRepo := user.NewUserRepository(db)
 	profileRepo := profile.NewProfileRepository(db)
+	transactionRepo := transaction.NewTransactionRepository(db)
+	swipeRepo := swipe.NewSwipeRepository(db)
 
 	healthUseCase := usecase.NewHealth(homeRepo)
 	signUp := v1.NewSignUp(userRepo, profileRepo)
 	login := v1.NewLogin(userRepo)
+	getProfile := v1.NewGetProfiles(profileRepo)
+	payment := v1.NewPayment(transactionRepo)
+	swipe := v1.NewSwipe(profileRepo, swipeRepo, transactionRepo)
 
 	testSvc := &test{}
 	rtr.fiber.Get("/health", rtr.handle(
@@ -85,6 +92,24 @@ func (rtr *router) Route() {
 	v1Route.Post("/login", rtr.handle(
 		handler.HttpRequest,
 		login,
+	))
+
+	v1Route.Post("/payment", rtr.handle(
+		handler.HttpRequest,
+		payment,
+		middleware.JWTMiddleware,
+	))
+
+	v1Route.Get("/profile", rtr.handle(
+		handler.HttpRequest,
+		getProfile,
+		middleware.JWTMiddleware,
+	))
+
+	v1Route.Post("/swipe", rtr.handle(
+		handler.HttpRequest,
+		swipe,
+		middleware.JWTMiddleware,
 	))
 }
 

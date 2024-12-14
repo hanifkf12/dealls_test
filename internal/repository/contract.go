@@ -26,6 +26,7 @@ type User interface {
 type Swipe interface {
 	SwipeRight(ctx context.Context, data entity.Swipe) (int64, error)
 	SwipeLeft(ctx context.Context, data entity.Swipe) (int64, error)
+	IsLimit(ctx context.Context, userID int) (bool, error)
 }
 
 type Transaction interface {
