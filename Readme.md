@@ -27,3 +27,7 @@
     ```
     make run-http
    ```
+4. You can build this project with docker use command
+   ```aiignore
+   docker build -f ./deployment/Dockerfile -t dating_apps_service:1.0 .
+   ```
